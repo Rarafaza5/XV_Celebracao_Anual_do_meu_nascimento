@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Festa de Aniversário - Rafael</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animação de partículas de fundo */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Seção inicial animada */
+        .hero-section {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .hero-title:hover {
+            transform: scale(1.05);
+            animation: rainbow 2s infinite;
+        }
+
+        @keyframes rainbow {
+            0% { color: #ff6b6b; }
+            16% { color: #ffa726; }
+            33% { color: #ffee58; }
+            50% { color: #66bb6a; }
+            66% { color: #42a5f5; }
+            83% { color: #ab47bc; }
+            100% { color: #ff6b6b; }
+        }
+
+        .event-details {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideIn 1s ease-out 0.3s both;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            font-size: 1.2rem;
+        }
+
+        .detail-icon {
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+
+        /* Formulário RSVP */
+        .rsvp-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .form-step h3 {
+            color: #667eea;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5f2;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .radio-item:hover {
+            background-color: #f8f9ff;
+        }
+
+        .radio-item input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        /* Botões */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9ff;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e1e5f2;
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        /* Easter eggs */
+        .balloon {
+            position: fixed;
+            width: 50px;
+            height: 70px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            cursor: pointer;
+            z-index: 5;
+            transition: transform 0.3s ease;
+            animation: floatBalloon 6s infinite ease-in-out;
+        }
+
+        .balloon:hover {
+            transform: scale(1.2);
+        }
+
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 20px;
+            background: #333;
+        }
+
+        @keyframes floatBalloon {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .balloon-1 { background: #ff6b6b; top: 20%; right: 10%; animation-delay: -1s; }
+        .balloon-2 { background: #4ecdc4; top: 40%; left: 5%; animation-delay: -2s; }
+        .balloon-3 { background: #ffe66d; bottom: 30%; right: 8%; animation-delay: -3s; }
+
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            animation: confettiFall 3s linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .cake-emoji {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 3rem;
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .cake-emoji:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .secret-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .secret-message h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .rsvp-container {
+                padding: 25px;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .form-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            color: #667eea;
+        }
+
+        .success-message h3 {
+            margin-bottom: 20px;
+        }
+
+        .celebration {
+            font-size: 4rem;
+            margin: 20px 0;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="balloon balloon-1" onclick="popBalloon(this)"></div>
+    <div class="balloon balloon-2" onclick="popBalloon(this)"></div>
+    <div class="balloon balloon-3" onclick="popBalloon(this)"></div>
+
+    <div class="cake-emoji" onclick="triggerConfetti()">🎂</div>
+
+    <div class="secret-message" id="secretMessage">
+        <button class="close-btn" onclick="closeSecretMessage()">&times;</button>
+        <h3>🎉 Mensagem Secreta! 🎉</h3>
+        <p>Parabéns por descobrires o segredo! Esta festa vai ser inesquecível! ✨</p>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title" onclick="showSecretMessage()">🎉 Festa de Aniversário 🎉</h1>
+            <div class="event-details">
+                <div class="detail-item">
+                    <span class="detail-icon">🎂</span>
+                    <span>XV Celebração Anual do Meu Nascimento</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-icon">📅</span>
+                    <span>22 de Novembro de 2025</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-icon">🕖</span>
+                    <span>16:00 às 19:30</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-icon">📍</span>
+                    <p><a href="https://maps.app.goo.gl/uFFTRa8Vf1t7YGLn9" style="text-decoration: none; color: #0d0460; font-size: 1em; font-family: sans-serif;">Grupo Desportivo Recreativo e Cultural da Chesol</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="rsvp-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+            </div>
+
+            <form id="rsvpForm">
+                <div class="form-step active" id="step1">
+                    <h3>🙋‍♂️ Quem és tu?</h3>
+                    <div class="form-group">
+                        <label for="name">O teu nome:</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="Digite o teu nome" required>
+                    </div>
+                </div>
+
+                <div class="form-step" id="step2">
+                    <h3>🎊 Vens à festa?</h3>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="attending-yes" name="attending" value="yes" required>
+                            <label for="attending-yes">🎉 Sim, estarei lá!</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="attending-no" name="attending" value="no" required>
+                            <label for="attending-no">😢 Não posso ir</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-step" id="step3">
+                    <h3>🎤 Que música te faz cantar?</h3>
+                    <div class="form-group">
+                        <label for="music">Sugere uma música:</label>
+                        <input type="text" id="music" name="music" class="form-control" placeholder="Ex: Artista - Nome da música">
+                    </div>
+                </div>
+
+                <div class="form-step" id="step4">
+                    <h3>💌 Deixa uma mensagem para o Rafael</h3>
+                    <div class="form-group">
+                        <label for="message">Mensagem especial (opcional):</label>
+                        <textarea id="message" name="message" class="form-control" rows="4" placeholder="Escreve algo carinhoso..."></textarea>
+                    </div>
+                </div>
+
+                <div class="success-message" id="successMessage">
+                    <div class="celebration">🎉✨🎊</div>
+                    <h3>Obrigado pela confirmação!</h3>
+                    <p>A tua resposta foi registada com sucesso. Mal podemos esperar para te ver na festa! 🥳</p>
+                    <div style="margin-top: 25px; padding: 15px; background: #e8f5e8; border-radius: 10px; border-left: 4px solid #4caf50;">
+                        <p style="margin: 0; font-size: 0.9rem; color: #2e7d32;">
+                            ✅ **Resposta guardada!**<br>
+                            Obrigada de qualquer forma
+                        </p>
+                    </div>
+                   
+                </div>
+            </form>
+
+            <div class="form-navigation" id="formNavigation">
+                <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)" style="visibility: hidden;">← Anterior</button>
+                <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">Próximo →</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+    <script>
+        // Substitui este objeto pela tua configuração Firebase
+     const firebaseConfig = {
+  apiKey: "AIzaSyDcEL7SrmAJUoh54qoHd6C3TQiHwOL5fIU",
+  authDomain: "grupoarmindo.firebaseapp.com",
+  projectId: "grupoarmindo",
+  storageBucket: "grupoarmindo.firebasestorage.app",
+  messagingSenderId: "122992601269",
+  appId: "1:122992601269:web:6c5cc5fff438fc90dbb6fc",
+  measurementId: "G-G10H46Y8VD"
+};
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const guestsCollection = db.collection("guests");
+
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        // Criar partículas de fundo
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Navegação do formulário
+        function changeStep(direction) {
+            const currentStepElement = document.getElementById(`step${currentStep}`);
+            
+            if (direction > 0 && !validateCurrentStep()) {
+                return;
+            }
+
+            if (currentStep === 2 && direction > 0 && document.getElementById('attending-no').checked) {
+                currentStep += 2;
+            } else {
+                currentStep += direction;
+            }
+            
+            if (currentStep > totalSteps) {
+                submitForm();
+                return;
+            }
+
+            currentStepElement.classList.remove('active');
+            const nextStepElement = document.getElementById(`step${currentStep}`);
+            nextStepElement.classList.add('active');
+            
+            updateProgress();
+            updateNavigation();
+        }
+
+        function validateCurrentStep() {
+            const step = document.getElementById(`step${currentStep}`);
+            const requiredInputs = step.querySelectorAll('input[required], select[required]');
+            
+            for (let input of requiredInputs) {
+                if (!input.value.trim()) {
+                    input.focus();
+                    input.style.borderColor = '#ff6b6b';
+                    setTimeout(() => {
+                        input.style.borderColor = '#e1e5f2';
+                    }, 2000);
+                    return false;
+                }
+                
+                if (input.type === 'radio') {
+                    const radioGroup = step.querySelectorAll(`input[name="${input.name}"]`);
+                    const isChecked = Array.from(radioGroup).some(radio => radio.checked);
+                    if (!isChecked) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.style.visibility = currentStep > 1 ? 'visible' : 'hidden';
+            
+            if (currentStep === 1) {
+                nextBtn.textContent = 'Continuar →';
+            } else if (currentStep === totalSteps) {
+                nextBtn.textContent = 'Enviar 🎉';
+            } else {
+                nextBtn.textContent = 'Próximo →';
+            }
+        }
+
+        function submitForm() {
+            const formData = {
+                name: document.getElementById('name').value,
+                attending: document.querySelector('input[name="attending"]:checked').value,
+                music: document.getElementById('music').value,
+                message: document.getElementById('message').value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            guestsCollection.add(formData)
+                .then(() => {
+                    console.log("Documento adicionado com sucesso!");
+                    showSuccessMessage();
+                })
+                .catch((error) => {
+                    console.error("Erro ao adicionar documento: ", error);
+                    alert("Ocorreu um erro ao enviar a tua resposta. Por favor, tenta novamente.");
+                });
+        }
+
+        function showSuccessMessage() {
+            document.getElementById('formNavigation').style.display = 'none';
+            document.querySelectorAll('.form-step').forEach(step => step.style.display = 'none');
+            document.getElementById('successMessage').style.display = 'block';
+            
+            setTimeout(() => {
+                triggerConfetti();
+            }, 500);
+        }
+
+        // Easter eggs
+        function popBalloon(balloon) {
+            balloon.style.animation = 'none';
+            balloon.style.transform = 'scale(0)';
+            balloon.style.opacity = '0';
+            createMiniConfetti(balloon);
+            setTimeout(() => {
+                balloon.style.transform = 'scale(1)';
+                balloon.style.opacity = '1';
+                balloon.style.animation = 'floatBalloon 6s infinite ease-in-out';
+            }, 3000);
+        }
+
+        function createMiniConfetti(element) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            for (let i = 0; i < 10; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = centerX + 'px';
+                confetti.style.top = centerY + 'px';
+                confetti.style.background = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#a8e6cf', '#ffd93d'][Math.floor(Math.random() * 5)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+
+        function triggerConfetti() {
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = '-10px';
+                confetti.style.background = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#a8e6cf', '#ffd93d', '#ff8a80'][Math.floor(Math.random() * 6)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        function showSecretMessage() {
+            document.getElementById('secretMessage').style.display = 'block';
+        }
+
+        function closeSecretMessage() {
+            document.getElementById('secretMessage').style.display = 'none';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key.toLowerCase() === 'c' && !e.target.matches('input, textarea')) {
+                triggerConfetti();
+            }
+            if (e.key === 'ArrowRight' && currentStep < totalSteps) {
+                changeStep(1);
+            } else if (e.key === 'ArrowLeft' && currentStep > 1) {
+                changeStep(-1);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            document.querySelectorAll('input, select, textarea').forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.style.borderColor === 'rgb(255, 107, 107)') {
+                        this.style.borderColor = '#e1e5f2';
+                    }
+                });
+            });
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
