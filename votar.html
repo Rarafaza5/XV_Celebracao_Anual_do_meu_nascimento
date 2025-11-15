@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votação - Quem Cantou Melhor?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .candidates {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .candidate {
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .candidate:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .candidate.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .vote-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .vote-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+        }
+
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 Quem Cantou Melhor?</h1>
+        
+        <div class="candidates" id="candidatesList">
+            <div class="loading">Carregando candidatos...</div>
+        </div>
+        
+        <button class="vote-btn" id="voteBtn" disabled>Votar</button>
+        
+        <div class="message" id="message"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, onValue, set, get, push } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8azNy6GEgD190y_fW91ahUbKa1w5veik",
+            authDomain: "aawards.firebaseapp.com",
+            databaseURL: "https://aawards-default-rtdb.firebaseio.com",
+            projectId: "aawards",
+            storageBucket: "aawards.firebasestorage.app",
+            messagingSenderId: "839334918366",
+            appId: "1:839334918366:web:454a259fa3e2665b46ea4f",
+            measurementId: "G-NLLMB9THVX"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let selectedCandidate = null;
+        let candidates = [];
+
+        const candidatesList = document.getElementById('candidatesList');
+        const voteBtn = document.getElementById('voteBtn');
+        const message = document.getElementById('message');
+
+        // Gerar fingerprint único do dispositivo
+        function generateFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('fingerprint', 2, 2);
+            const canvasData = canvas.toDataURL();
+            
+            const fingerprint = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screenResolution: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                canvasHash: canvasData.substring(0, 50)
+            };
+            
+            return btoa(JSON.stringify(fingerprint)).substring(0, 50);
+        }
+
+        const deviceFingerprint = generateFingerprint();
+
+        // Verificar se já votou (cookie)
+        function checkVotedCookie() {
+            return document.cookie.split(';').some(c => c.trim().startsWith('voted='));
+        }
+
+        function setVotedCookie() {
+            const expires = new Date();
+            expires.setFullYear(expires.getFullYear() + 1);
+            document.cookie = `voted=true; expires=${expires.toUTCString()}; path=/`;
+        }
+
+        // Verificar ao carregar
+        if (checkVotedCookie()) {
+            showMessage('Você já votou neste dispositivo!', 'error');
+            voteBtn.disabled = true;
+            document.querySelectorAll('.candidate').forEach(c => {
+                c.style.pointerEvents = 'none';
+                c.style.opacity = '0.5';
+            });
+        }
+
+        // Carregar candidatos
+        onValue(ref(db, 'candidates'), (snapshot) => {
+            candidates = [];
+            candidatesList.innerHTML = '';
+            
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
+                    candidates.push({
+                        id: child.key,
+                        name: child.val().name
+                    });
+                });
+                
+                if (candidates.length === 0) {
+                    candidatesList.innerHTML = '<div class="loading">Nenhum candidato disponível</div>';
+                } else {
+                    const hasVoted = checkVotedCookie();
+                    candidates.forEach(candidate => {
+                        const div = document.createElement('div');
+                        div.className = 'candidate';
+                        div.textContent = candidate.name;
+                        if (!hasVoted) {
+                            div.onclick = () => selectCandidate(candidate.id, div);
+                        } else {
+                            div.style.pointerEvents = 'none';
+                            div.style.opacity = '0.5';
+                        }
+                        candidatesList.appendChild(div);
+                    });
+                }
+            } else {
+                candidatesList.innerHTML = '<div class="loading">Nenhum candidato disponível</div>';
+            }
+        });
+
+        function selectCandidate(id, element) {
+            if (checkVotedCookie()) {
+                showMessage('O teu voto já foi registado!', 'error');
+                return;
+            }
+            document.querySelectorAll('.candidate').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedCandidate = id;
+            voteBtn.disabled = false;
+        }
+
+        voteBtn.addEventListener('click', async () => {
+            if (!selectedCandidate) {
+                showMessage('Selecione um candidato!', 'error');
+                return;
+            }
+
+            try {
+                // Verificar cookie novamente
+                if (checkVotedCookie()) {
+                    showMessage('Você já votou! (cookie)', 'error');
+                    return;
+                }
+
+                // Verificar fingerprint no banco
+                const votesRef = ref(db, 'votes');
+                const snapshot = await get(votesRef);
+                
+                if (snapshot.exists()) {
+                    let hasVoted = false;
+                    
+                    snapshot.forEach((child) => {
+                        const vote = child.val();
+                        if (vote.fingerprint === deviceFingerprint) {
+                            hasVoted = true;
+                        }
+                    });
+                    
+                    if (hasVoted) {
+                        showMessage('Você já votou! (detectado por dispositivo)', 'error');
+                        setVotedCookie();
+                        voteBtn.disabled = true;
+                        return;
+                    }
+                }
+
+                // Registrar voto
+                await push(votesRef, {
+                    fingerprint: deviceFingerprint,
+                    candidateId: selectedCandidate,
+                    timestamp: Date.now(),
+                    userAgent: navigator.userAgent.substring(0, 100)
+                });
+
+                // Atualizar contagem
+                const countRef = ref(db, `candidates/${selectedCandidate}/votes`);
+                const countSnapshot = await get(countRef);
+                const currentVotes = countSnapshot.exists() ? countSnapshot.val() : 0;
+                await set(countRef, currentVotes + 1);
+
+                // Definir cookie de votação
+                setVotedCookie();
+
+                showMessage('Voto registrado com sucesso! 🎉', 'success');
+                selectedCandidate = null;
+                document.querySelectorAll('.candidate').forEach(c => {
+                    c.classList.remove('selected');
+                    c.style.pointerEvents = 'none';
+                    c.style.opacity = '0.5';
+                });
+                voteBtn.disabled = true;
+
+            } catch (error) {
+                showMessage('Erro ao registrar voto. Tente novamente.', 'error');
+                console.error(error);
+            }
+        });
+
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = `message ${type}`;
+            setTimeout(() => {
+                if (type !== 'success') {
+                    message.className = 'message';
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
